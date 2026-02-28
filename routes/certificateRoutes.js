@@ -1,4 +1,5 @@
 import express from "express";
+
 import {
   createCertificate,
   getCertificateById,
@@ -7,15 +8,30 @@ import {
 
 import validateCertificate from "../middlewares/validationMiddleware.js";
 
+import authMiddleware from "../middlewares/authMiddleware.js";
+
 const router = express.Router();
 
 // POST → Create certificate
-router.post("/certificate", validateCertificate, createCertificate);
+router.post(
+  "/certificate",
+  authMiddleware,
+  validateCertificate,
+  createCertificate
+);
 
-// GET → Fetch by ID (Route param)
-router.get("/certificate/:id", getCertificateById);
+// GET → Fetch by ID
+router.get(
+  "/certificate/:id",
+  authMiddleware,
+  getCertificateById
+);
 
-// GET → Filter by query param
-router.get("/certificates", getCertificatesByCompany);
+// GET → Filter by company
+router.get(
+  "/certificates",
+  authMiddleware,
+  getCertificatesByCompany
+);
 
 export default router;
