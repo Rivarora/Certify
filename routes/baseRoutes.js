@@ -8,10 +8,11 @@ const router = express.Router();
 
 router.get("/", homeController);
 router.get("/status", statusController);
-//  — Error Test Route
+
+// Error Test Route (Middleware demonstration)
 router.get("/api/error", (req, res, next) => {
 
-  const error = new Error("This is a test error from Tishya");
+  const error = new Error("Test error for middleware demonstration");
 
   next(error);
 
