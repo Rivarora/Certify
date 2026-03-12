@@ -18,7 +18,7 @@ export const createCertificate = (req, res) => {
   certificates.push(newCert);
 
   res.status(201).json({
-    message: "Certificate created successfully",
+    message: "Certificate Verified!!",
     certificate: newCert
   });
 };
