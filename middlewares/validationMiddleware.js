@@ -10,7 +10,7 @@ const validateCertificate = (req, res, next) => {
     return res.status(400).json({ message: "Invalid email format" });
   }
 
-  next(); // continue to controller
+  next(); 
 };
 
 export default validateCertificate;

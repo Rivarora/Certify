@@ -1,4 +1,4 @@
-// Temporary in-memory storage (no DB needed for demo)
+// Temporary in-memory storage for certificates
 let certificates = [];
 let idCounter = 1;
 

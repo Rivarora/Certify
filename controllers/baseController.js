@@ -1,5 +1,5 @@
 export const homeController = (req, res) => {
-  res.send("Welcome to ProofPoint Backend 🚀");
+  res.send("Welcome to CertiVerify Backend ");
 };
 
 export const statusController = (req, res) => {

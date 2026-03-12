@@ -17,19 +17,19 @@ export const uploadController = async (req, res, next) => {
     const filePath = req.file.path;
     let fileContent = "";
 
-    // ✅ PDF
+    // PDF
     if (req.file.mimetype === "application/pdf") {
       const dataBuffer = fs.readFileSync(filePath);
       const pdfData = await pdfParse(dataBuffer);
       fileContent = pdfData.text;
     }
 
-    // ✅ TXT
+    //  TXT
     else if (req.file.mimetype === "text/plain") {
       fileContent = fs.readFileSync(filePath, "utf-8");
     }
 
-    // ✅ DOCX
+    // DOCX
     else if (
       req.file.mimetype === "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
     ) {
