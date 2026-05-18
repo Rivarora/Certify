@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Result</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: "Segoe UI", sans-serif;
+  background: #eef2f7;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+/* MAIN CARD */
+.card {
+  width: 420px;
+  padding: 24px;
+  border-radius: 14px;
+  background: white;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+  overflow-y: auto;
+  max-height: 90vh;
+}
+
+/* HEADER */
+.title {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.subtitle {
+  font-size: 11px;
+  color: #888;
+  margin-bottom: 16px;
+}
+
+/* GRAPH BOX */
+.graph-box {
+  background: #f5f7ff;
+  padding: 16px;
+  border-radius: 12px;
+  display: flex;
+  gap: 18px;
+  align-items: center;
+}
+
+/* CIRCLE */
+.circle {
+  position: relative;
+  width: 90px;
+  height: 90px;
+}
+
+.circle svg {
+  transform: rotate(-90deg);
+}
+
+circle {
+  fill: none;
+  stroke-width: 7;
+}
+
+.bg {
+  stroke: #e0e4ff;
+}
+
+.progress {
+  stroke: #6c63ff;
+  stroke-linecap: round;
+  transition: 0.8s ease;
+}
+
+.percent {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-weight: bold;
+  font-size: 16px;
+  color: #333;
+}
+
+/* BADGE */
+.badge {
+  background: #e7ebff;
+  color: #6c63ff;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  margin-bottom: 8px;
+  display: inline-block;
+}
+
+/* BARS */
+.bar {
+  height: 6px;
+  background: #e5e7ff;
+  border-radius: 5px;
+  margin: 6px 0;
+}
+
+.fill {
+  height: 6px;
+  border-radius: 5px;
+  background: #6c63ff;
+  transition: width 0.6s ease;
+}
+
+/* SECTIONS */
+.section {
+  margin-top: 18px;
+}
+
+.section h4 {
+  font-size: 11px;
+  color: #777;
+  margin-bottom: 8px;
+}
+
+ul {
+  padding-left: 18px;
+}
+
+li {
+  margin-bottom: 5px;
+  color: #444;
+}
+
+/* CONTENT */
+.content {
+  background: #f5f7ff;
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 12px;
+  color: #333;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+/* BUTTON */
+.btn {
+  margin-top: 18px;
+  width: 100%;
+  padding: 11px;
+  border: none;
+  border-radius: 10px;
+  background: #6c63ff;
+  color: white;
+  cursor: pointer;
+}
+
+/* COPY BUTTON */
+.copy-btn {
+  margin-top: 10px;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 8px;
+  background: #6c63ff;
+  color: white;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.copy-btn:hover {
+  opacity: 0.9;
+}
+
+/* OCR INFO */
+.ocr-info {
+  margin-top: 10px;
+  font-size: 12px;
+  color: #555;
+}
+</style>
+</head>
+
+<body>
+
+<a href="/" style="display:inline-flex; align-items:center; gap:0.5rem; text-decoration:none; background:#f5f3ff; color:#5b21b6; border:1px solid #c4b5fd; padding:0.85rem 1.1rem; border-radius:999px; font-weight:700; box-shadow:0 15px 30px rgba(99,102,241,0.12); transition:transform .2s ease, background .2s ease; margin:1rem; position:absolute; top:0; left:0; z-index:10;">
+  <span style="font-size:1rem;">←</span>
+  <span>Back to Home</span>
+</a>
+
+<div class="card">
+
+  <div class="title">Certificate Analysis</div>
+  <div class="subtitle">AUTHENTICITY REPORT</div>
+
+  <!-- GRAPH -->
+  <div class="graph-box">
+
+    <div class="circle">
+      <svg width="90" height="90">
+        <circle cx="45" cy="45" r="40" class="bg"/>
+        <circle cx="45" cy="45" r="40" class="progress" id="circle"/>
+      </svg>
+      <div class="percent" id="percent"></div>
+    </div>
+
+    <div>
+      <div class="badge" id="badge"></div>
+
+      <div>Structural Integrity</div>
+      <div class="bar"><div class="fill" id="s"></div></div>
+
+      <div>Issuer Confidence</div>
+      <div class="bar"><div class="fill" id="i"></div></div>
+
+      <div>Verification Score</div>
+      <div class="bar"><div class="fill" id="v"></div></div>
+    </div>
+
+  </div>
+
+  <!-- ISSUES -->
+  <div class="section">
+    <h4>FLAGGED ISSUES</h4>
+    <ul id="reasons"></ul>
+  </div>
+
+  <!-- OCR CONTENT -->
+  <div class="section">
+
+    <h4>EXTRACTED OCR CONTENT</h4>
+
+    <div class="content" id="content"></div>
+
+    <button
+      class="copy-btn"
+      onclick="copyOCRText()"
+    >
+      Copy Extracted Text
+    </button>
+
+    <div class="ocr-info" id="ocrInfo"></div>
+
+  </div>
+
+  <button class="btn" onclick="window.location.href='/upload'">
+    Upload Another
+  </button>
+
+</div>
+
+<script>
+
+const data = JSON.parse(localStorage.getItem("result"));
+
+if (!data) {
+
+  document.body.innerHTML = "<h2>No result found</h2>";
+
+} else {
+
+  const percent = data.riskScore || 0;
+
+  // GRAPH
+  const circle = document.getElementById("circle");
+
+  const radius = 40;
+
+  const circumference = 2 * Math.PI * radius;
+
+  circle.style.strokeDasharray = circumference;
+
+  circle.style.strokeDashoffset =
+    circumference - (percent / 100) * circumference;
+
+  document.getElementById("percent").innerText =
+    percent + "%";
+
+  document.getElementById("badge").innerText =
+    data.riskLevel + " Risk";
+
+  // BARS
+  document.getElementById("s").style.width =
+    (data.structuralIntegrity || 70) + "%";
+
+  document.getElementById("i").style.width =
+    (data.issuerConfidence || 50) + "%";
+
+  document.getElementById("v").style.width =
+    (data.verificationScore || 60) + "%";
+
+  // REASONS
+  const list = document.getElementById("reasons");
+
+  (data.reasons || []).forEach(r => {
+
+    const li = document.createElement("li");
+
+    li.innerText = r;
+
+    list.appendChild(li);
+  });
+
+  // OCR CONTENT
+  document.getElementById("content").innerText =
+    data.extractedContent || "No content found";
+
+  // OCR CONFIDENCE
+  if (data.ocrConfidence) {
+
+    document.getElementById("ocrInfo").innerText =
+      "OCR Accuracy: " +
+      Math.round(data.ocrConfidence) +
+      "%";
+  }
+}
+
+// COPY FUNCTION
+function copyOCRText() {
+
+  const text =
+    document.getElementById("content").innerText;
+
+  navigator.clipboard.writeText(text);
+
+  alert("OCR text copied!");
+}
+
+</script>
+
+</body>
+</html>

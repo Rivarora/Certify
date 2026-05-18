@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Upload Certificate</title>
+
+  <link rel="stylesheet" href="/css/upload.css">
+
+  <style>
+
+  #statusText {
+    margin-top: 12px;
+    font-weight: 600;
+    color: #4b5563;
+    text-align: center;
+  }
+
+  .processing {
+    color: #6366f1;
+  }
+
+  .success {
+    color: #16a34a;
+  }
+
+  .error {
+    color: #dc2626;
+  }
+
+  #progressBar {
+    overflow: hidden;
+  }
+
+  </style>
+
+</head>
+
+<body>
+
+  <a href="/" style="display:inline-flex; align-items:center; gap:0.5rem; text-decoration:none; background:#f5f3ff; color:#5b21b6; border:1px solid #c4b5fd; padding:0.85rem 1.1rem; border-radius:999px; font-weight:700; box-shadow:0 15px 30px rgba(99,102,241,0.12); transition:transform .2s ease, background .2s ease; margin:1rem; position:absolute; top:0; left:0; z-index:10;">
+    <span style="font-size:1rem;">←</span>
+    <span>Back to Home</span>
+  </a>
+
+<div class="upload-container">
+
+  <div class="upload-card">
+
+    <div class="header">
+      <h2>Upload Certificate</h2>
+      <span class="close">✖</span>
+    </div>
+
+    <!-- DRAG DROP -->
+    <div class="drop-zone" id="dropZone">
+      <p>📁 Drag & Drop your file here</p>
+      <span>or</span>
+      <input type="file" id="fileInput" hidden />
+      <button id="chooseBtn">Choose Files</button>
+      <small>(Max size 20MB)</small>
+    </div>
+
+    <!-- FILE LIST -->
+    <div id="fileList"></div>
+
+    <!-- STATUS -->
+    <p id="statusText">
+      Waiting...
+    </p>
+
+    <!-- ACTION BUTTONS -->
+    <div class="actions">
+      <button id="cancelBtn" class="cancel">
+        Cancel
+      </button>
+
+      <button id="uploadBtn" class="upload">
+        Upload
+      </button>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- SOCKET + JS -->
+<script src="/socket.io/socket.io.js"></script>
+
+<script>
+
+const fileInput =
+  document.getElementById("fileInput");
+
+const chooseBtn =
+  document.getElementById("chooseBtn");
+
+const uploadBtn =
+  document.getElementById("uploadBtn");
+
+const fileList =
+  document.getElementById("fileList");
+
+const statusText =
+  document.getElementById("statusText");
+
+let selectedFile = null;
+
+const socket = io();
+
+let isSocketConnected = false;
+
+/*
+=====================================
+PROGRESS BAR
+=====================================
+*/
+
+const progressBar =
+  document.createElement("div");
+
+progressBar.id = "progressBar";
+
+progressBar.style.display = "none";
+
+progressBar.style.marginTop = "10px";
+
+progressBar.style.height = "10px";
+
+progressBar.style.background = "#e5e7eb";
+
+progressBar.style.borderRadius = "999px";
+
+progressBar.innerHTML =
+  `
+  <div
+    id="progressFill"
+    style="
+      height:100%;
+      width:0;
+      background:#6366f1;
+      border-radius:999px;
+      transition:width 0.3s ease
+    ">
+  </div>
+  `;
+
+fileList.parentNode.insertBefore(
+  progressBar,
+  fileList.nextSibling
+);
+
+const progressFill =
+  progressBar.querySelector("#progressFill");
+
+/*
+=====================================
+SOCKET EVENTS
+=====================================
+*/
+
+socket.on("connect", () => {
+
+  isSocketConnected = true;
+
+  statusText.innerText =
+    "Ready to upload";
+});
+
+socket.on("disconnect", () => {
+
+  isSocketConnected = false;
+
+  statusText.className = "error";
+
+  statusText.innerText =
+    "Socket disconnected. Reload page.";
+});
+
+/*
+=====================================
+OCR + UPLOAD PROGRESS
+=====================================
+*/
+
+socket.on("uploadProgress", (data) => {
+
+  if (!data) return;
+
+  statusText.innerText =
+    data.message || "Processing...";
+
+  statusText.className = "processing";
+
+  progressBar.style.display = "block";
+
+  progressFill.style.width =
+    `${data.percent || 0}%`;
+
+  /*
+  =====================================
+  SUCCESS
+  =====================================
+  */
+
+  if (data.percent === 100) {
+
+    statusText.className = "success";
+
+    statusText.innerText =
+      "OCR & Analysis Completed ✅";
+
+    setTimeout(() => {
+
+      window.location.href = "/result";
+
+    }, 1200);
+  }
+});
+
+/*
+=====================================
+CHOOSE FILE
+=====================================
+*/
+
+chooseBtn.addEventListener("click", () => {
+
+  fileInput.click();
+});
+
+/*
+=====================================
+FILE SELECT
+=====================================
+*/
+
+fileInput.addEventListener("change", () => {
+
+  selectedFile = fileInput.files[0];
+
+  if (selectedFile) {
+
+    fileList.innerHTML =
+      `<p>${selectedFile.name}</p>`;
+
+    progressBar.style.display = "none";
+
+    progressFill.style.width = "0";
+
+    statusText.className = "";
+
+    statusText.innerText =
+      "File ready";
+  }
+});
+
+/*
+=====================================
+UPLOAD FILE
+=====================================
+*/
+
+uploadBtn.addEventListener("click", async () => {
+
+  if (!selectedFile) {
+
+    alert("Please select a file first");
+
+    return;
+  }
+
+  if (!isSocketConnected) {
+
+    alert(
+      "Socket not connected yet. Please wait."
+    );
+
+    return;
+  }
+
+  const formData = new FormData();
+
+  formData.append("file", selectedFile);
+
+  statusText.className = "processing";
+
+  statusText.innerText =
+    "Starting upload...";
+
+  progressBar.style.display = "block";
+
+  progressFill.style.width = "5%";
+
+  try {
+
+    const res = await fetch(
+      `/api/upload?socketId=${socket.id}`,
+      {
+        method: "POST",
+        body: formData,
+        credentials: "include"
+      }
+    );
+
+    if (res.status === 401) {
+
+      alert("Please login first");
+
+      statusText.className = "error";
+
+      statusText.innerText =
+        "Authentication required";
+
+      return;
+    }
+
+    const data = await res.json();
+
+    if (!data.success) {
+
+      statusText.className = "error";
+
+      statusText.innerText =
+        data.message || "Upload failed";
+
+      alert(data.message || "Upload failed");
+
+      return;
+    }
+
+    localStorage.setItem(
+      "result",
+      JSON.stringify(data)
+    );
+
+    if (data.success) {
+
+      statusText.className = "processing";
+
+      statusText.innerText =
+        "Waiting for OCR analysis...";
+    }
+
+  }
+
+  catch (err) {
+
+    console.error(err);
+
+    statusText.className = "error";
+
+    statusText.innerText =
+      "Upload failed";
+
+    alert(
+      "Upload failed. Please try again."
+    );
+  }
+});
+
+</script>
+
+</body>
+</html>

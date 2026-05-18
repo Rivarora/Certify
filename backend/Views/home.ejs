@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>CertiVerify</title>
+</head>
+
+<body style="font-family:'Inter','Segoe UI',sans-serif; margin:0; background:#fff; min-height:100vh;">
+
+  <!-- Navbar -->
+  <%- include('partials/navbar') %>
+
+  <!-- HERO -->
+  <div style="
+    min-height: calc(100vh - 104px);
+    background: linear-gradient(135deg, #f8f7ff 0%, #ede9ff 30%, #fdf4ff 55%, #fff8f0 80%, #fff 100%);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+  ">
+
+    <!-- Wave -->
+    <svg style="position:absolute; bottom:0; width:100%" viewBox="0 0 1440 200">
+      <path d="M0,100 C200,160 400,20 600,100 C800,180 1000,40 1200,100 C1300,130 1380,90 1440,100 L1440,200 L0,200 Z"
+        fill="rgba(108,99,255,0.06)"/>
+    </svg>
+
+    <!-- Glow orange -->
+    <div style="position:absolute; top:-100px; right:200px; width:500px; height:500px; border-radius:50%;
+      background:radial-gradient(circle, rgba(251,146,60,0.18), transparent 70%);">
+    </div>
+
+    <!-- Glow purple -->
+    <div style="position:absolute; top:0; right:100px; width:600px; height:600px; border-radius:50%;
+      background:radial-gradient(circle, rgba(168,85,247,0.12), transparent 70%);">
+    </div>
+
+    <div style="max-width:1200px; margin:0 auto; padding:4rem 2rem; display:flex;
+      align-items:center; justify-content:space-between; gap:2rem; width:100%; position:relative; z-index:1;">
+
+      <!-- LEFT -->
+      <div style="max-width:420px;">
+        <div style="display:inline-flex; background:rgba(108,99,255,0.08);
+          border:1px solid rgba(108,99,255,0.2); border-radius:999px; padding:0.4rem 1rem;
+          font-size:0.75rem; font-weight:700; color:#6c63ff; margin-bottom:1.75rem;">
+          Welcome back, <%= user.name %>
+        </div>
+
+        <h1 style="font-size:3rem; font-weight:900; color:#1a1a2e; margin-bottom:1.25rem; line-height:1.1;">
+          Verify. Analyze.<br/>
+          <span style="color:#6c63ff">Trust.</span>
+        </h1>
+
+        <p style="color:#6b7280; margin-bottom:2.25rem; line-height:1.7; font-size:1rem;">
+          AI-powered certificate verification and risk detection in seconds.
+        </p>
+
+        <a href="/upload">
+          <button style="background:linear-gradient(135deg, #6c63ff, #a855f7); color:white;
+            padding:0.9rem 2rem; border-radius:999px; border:none; cursor:pointer;
+            font-weight:700; font-size:1rem; box-shadow:0 8px 28px rgba(108,99,255,0.45);">
+            Get Started →
+          </button>
+        </a>
+      </div>
+
+      <!-- IMAGE -->
+      <div style="flex:1; display:flex; justify-content:center; align-items:center;
+        position:relative; min-height:420px;">
+
+        <div style="position:absolute; width:500px; height:500px; border-radius:50%;
+          background:radial-gradient(circle, rgba(108,99,255,0.15), transparent 70%);
+          filter:blur(40px);">
+        </div>
+
+        <img src="/Certify.png"
+          style="width:100%; max-width:520px; object-fit:contain; mix-blend-mode:multiply;
+          filter:drop-shadow(0 30px 60px rgba(108,99,255,0.25)) contrast(1.02);">
+      </div>
+
+    </div>
+  </div>
+
+  <!-- FEATURES -->
+  <div style="padding:5rem 2rem; background:#fafafa;">
+    <div style="max-width:1100px; margin:0 auto;">
+
+      <p style="text-align:center; color:#6c63ff; font-weight:700; font-size:0.8rem;
+        letter-spacing:0.12em; margin-bottom:0.5rem;">
+        WHAT WE DETECT
+      </p>
+
+      <h2 style="text-align:center; font-size:2rem; font-weight:900; color:#1a1a2e; margin-bottom:3rem;">
+        Powerful AI Detection Engine
+      </h2>
+
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(230px,1fr)); gap:1.5rem;">
+
+        <!-- Card 1 -->
+        <div style="background:#f0eeff; border-radius:20px; padding:2rem; border:1px solid #6c63ff22;">
+          <div style="width:52px; height:52px; border-radius:14px; background:#6c63ff;
+            display:flex; align-items:center; justify-content:center; font-size:1.5rem; margin-bottom:1.25rem;">
+            📧
+          </div>
+          <h3 style="font-weight:800;">Email Detection</h3>
+          <p>Flags free providers like Gmail, Yahoo, Hotmail</p>
+        </div>
+
+        <!-- Card 2 -->
+        <div style="background:#fff0f9; border-radius:20px; padding:2rem; border:1px solid #ec489922;">
+          <div style="width:52px; height:52px; border-radius:14px; background:#ec4899;
+            display:flex; align-items:center; justify-content:center;">🌐</div>
+          <h3>Domain Analysis</h3>
+          <p>Detects fake or suspicious company domains</p>
+        </div>
+
+        <!-- Card 3 -->
+        <div style="background:#f0fff4; border-radius:20px; padding:2rem; border:1px solid #10b98122;">
+          <div style="width:52px; height:52px; border-radius:14px; background:#10b981;
+            display:flex; align-items:center; justify-content:center;">📅</div>
+          <h3>Duration Check</h3>
+          <p>Catches impossible internship duration claims</p>
+        </div>
+
+        <!-- Card 4 -->
+        <div style="background:#fffbeb; border-radius:20px; padding:2rem; border:1px solid #f59e0b22;">
+          <div style="width:52px; height:52px; border-radius:14px; background:#f59e0b;
+            display:flex; align-items:center; justify-content:center;">📊</div>
+          <h3>Risk Scoring</h3>
+          <p>Low / Medium / High report with detailed reasons</p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div style="background:linear-gradient(135deg, #6c63ff, #a855f7); padding:5rem 2rem; text-align:center;">
+    <h2 style="color:white; font-size:2.2rem; font-weight:900; margin-bottom:1rem;">
+      Ready to Verify Your Certificate?
+    </h2>
+    <p style="color:rgba(255,255,255,0.75); margin-bottom:2rem;">
+      Free, fast, and accurate — results in under 3 seconds.
+    </p>
+  </div>
+
+<!-- ✅ ADD THIS -->
+<footer style="background:#1e1b4b; padding:2rem; text-align:center; color:#a78bfa; font-size:0.875rem;">
+  © 2024 CertiVerify · AI Certificate Analyzer · Built by Team CertiVerify
+</footer>
+
+</body>
+</html>
+
+</body>
+</html>

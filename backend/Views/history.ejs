@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Certificate History - CertiVerify</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', 'Segoe UI', sans-serif;
+      background: #F5F6F8;
+    }
+
+    /* ── Header ── */
+    .page-header {
+      background: linear-gradient(135deg, #1e1b4b 0%, #4c1d95 100%);
+      padding: 5rem 2rem 2.5rem;
+      color: white;
+      margin-top: 68px;
+    }
+
+    .page-header h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: 0.4rem;
+    }
+
+    .page-header p {
+      color: #c4b5fd;
+      font-size: 1rem;
+    }
+
+    /* ── Container ── */
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+    }
+
+    /* ── Filter Card ── */
+    .filter-card {
+      background: white;
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    }
+
+    .filter-card h3 {
+      color: #4c1d95;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      font-size: 1rem;
+    }
+
+    .filter-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+    }
+
+    .filter-group label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 0.4rem;
+    }
+
+    .filter-group input,
+    .filter-group select {
+      width: 100%;
+      padding: 0.55rem 0.8rem;
+      border: 1.5px solid #E5E7EB;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      color: #1F2937;
+      background: #FAFAFA;
+      outline: none;
+    }
+
+    .filter-group input:focus,
+    .filter-group select:focus {
+      border-color: #6D28D9;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.2rem;
+    }
+
+    .btn-primary {
+      padding: 0.6rem 1.4rem;
+      background: linear-gradient(135deg, #6D28D9, #7C3AED);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .btn-secondary {
+      padding: 0.6rem 1.2rem;
+      background: #F3F4F6;
+      color: #374151;
+      border: 1.5px solid #E5E7EB;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    /* ── Result count ── */
+    .result-count {
+      color: #6B7280;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+    }
+
+    /* ── Certificate Card ── */
+    .cert-card {
+      background: white;
+      border-radius: 14px;
+      padding: 1.2rem 1.5rem;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      margin-bottom: 1rem;
+      border-left: 4px solid #6EE7B7;
+    }
+
+    .cert-card.risk-medium {
+      border-left-color: #FCD34D;
+    }
+
+    .cert-card.risk-high {
+      border-left-color: #FCA5A5;
+    }
+
+    .cert-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .cert-name {
+      font-weight: 700;
+      color: #1e1b4b;
+      font-size: 1.05rem;
+      margin-bottom: 0.2rem;
+    }
+
+    .cert-meta {
+      color: #6B7280;
+      font-size: 0.87rem;
+    }
+
+    .cert-date {
+      color: #9CA3AF;
+      font-size: 0.8rem;
+      margin-top: 0.2rem;
+    }
+
+    .cert-badges {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+
+    .badge {
+      padding: 3px 12px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      border: 1px solid;
+    }
+
+    .badge-low {
+      background: #D1FAE5;
+      color: #065F46;
+      border-color: #6EE7B7;
+    }
+
+    .badge-medium {
+      background: #FEF3C7;
+      color: #92400E;
+      border-color: #FCD34D;
+    }
+
+    .badge-high {
+      background: #FEE2E2;
+      color: #991B1B;
+      border-color: #FCA5A5;
+    }
+
+    .badge-score {
+      background: #f3f4f6;
+      color: #374151;
+      border-color: #E5E7EB;
+      border-radius: 8px;
+    }
+
+    /* ── Reasons toggle ── */
+    .reasons-toggle {
+      background: none;
+      border: none;
+      color: #6D28D9;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 0;
+      margin-top: 0.8rem;
+    }
+
+    .reasons-list {
+      display: none;
+      margin-top: 0.5rem;
+      padding-left: 1.2rem;
+      color: #6B7280;
+      font-size: 0.85rem;
+    }
+
+    .reasons-list li {
+      margin-bottom: 0.2rem;
+    }
+
+    /* ── Delete ── */
+    .cert-footer {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 0.8rem;
+    }
+
+    .btn-delete {
+      background: #FEE2E2;
+      color: #991B1B;
+      border: none;
+      border-radius: 8px;
+      padding: 6px 14px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-delete:hover {
+      background: #FECACA;
+    }
+
+    /* ── Empty / Loading ── */
+    .empty-state {
+      text-align: center;
+      padding: 4rem;
+      color: #9CA3AF;
+    }
+
+    .empty-state .icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    .empty-state h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    /* ── Error ── */
+    .error-box {
+      background: #FEE2E2;
+      color: #991B1B;
+      padding: 1.2rem;
+      border-radius: 12px;
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+
+<body>
+
+  <%- include('partials/navbar') %>
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="container" style="padding-top:0; padding-bottom:0;">
+      <h1>📜 Certificate History</h1>
+      <p>View and filter all analyzed certificates</p>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <!-- Filter Card -->
+    <div class="filter-card">
+
+      <h3>🔍 Search &amp; Filter</h3>
+
+      <form method="GET" action="/history">
+
+        <div class="filter-grid">
+
+          <div class="filter-group">
+            <label>Search (name / email / company)</label>
+
+            <input
+              type="text"
+              name="search"
+              placeholder="e.g. Google, John..."
+              value="<%= filters?.search || '' %>"
+            />
+          </div>
+
+          <div class="filter-group">
+            <label>Company</label>
+
+            <input
+              type="text"
+              name="company"
+              placeholder="e.g. Infosys"
+              value="<%= filters?.company || '' %>"
+            />
+          </div>
+
+          <div class="filter-group">
+            <label>Risk Level</label>
+
+            <select name="riskLevel">
+
+              <option value="">All Levels</option>
+
+              <option
+                value="Low"
+                <%= filters?.riskLevel === 'Low' ? 'selected' : '' %>
+              >
+                🟢 Low
+              </option>
+
+              <option
+                value="Medium"
+                <%= filters?.riskLevel === 'Medium' ? 'selected' : '' %>
+              >
+                🟡 Medium
+              </option>
+
+              <option
+                value="High"
+                <%= filters?.riskLevel === 'High' ? 'selected' : '' %>
+              >
+                🔴 High
+              </option>
+
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label>From Date</label>
+
+            <input
+              type="date"
+              name="startDate"
+              value="<%= filters?.startDate || '' %>"
+            />
+          </div>
+
+          <div class="filter-group">
+            <label>To Date</label>
+
+            <input
+              type="date"
+              name="endDate"
+              value="<%= filters?.endDate || '' %>"
+            />
+          </div>
+
+        </div>
+
+        <div class="btn-row">
+
+          <button type="submit" class="btn-primary">
+            🔍 Apply Filters
+          </button>
+
+          <a href="/history" class="btn-secondary">
+            ✕ Reset
+          </a>
+
+        </div>
+
+      </form>
+    </div>
+
+    <!-- Error -->
+    <% if (typeof error !== 'undefined' && error) { %>
+
+      <div class="error-box">
+        ⚠️ <%= error %>
+      </div>
+
+    <% } %>
+
+    <!-- Result Count -->
+    <% if (!error) { %>
+
+      <p class="result-count">
+
+        Showing
+        <strong><%= certificates?.length || 0 %></strong>
+
+        certificate<%= (certificates?.length || 0) !== 1 ? 's' : '' %>
+
+      </p>
+
+    <% } %>
+
+    <!-- Empty State -->
+    <% if (!error && (!certificates || certificates.length === 0)) { %>
+
+      <div class="empty-state">
+
+        <div class="icon">📂</div>
+
+        <h3>No certificates found</h3>
+
+        <p>
+          Try changing your filters or upload a certificate to get started.
+        </p>
+
+        <a
+          href="/upload"
+          class="btn-primary"
+          style="display:inline-block; margin-top:1.5rem;"
+        >
+          Upload Certificate
+        </a>
+
+      </div>
+
+    <% } %>
+
+    <!-- Certificate Cards -->
+    <% (certificates || []).forEach(function(cert) { %>
+
+      <div
+        class="cert-card risk-<%= (cert.riskLevel || 'low').toLowerCase() %>"
+        id="card-<%= cert.id %>"
+      >
+
+        <div class="cert-top">
+
+          <div>
+
+            <div class="cert-name">
+              <%= cert.name || 'Unknown' %>
+            </div>
+
+            <div class="cert-meta">
+
+              <%= cert.email || 'No Email' %>
+
+              &nbsp;·&nbsp;
+
+              <%= cert.company || 'Unknown Company' %>
+
+              &nbsp;·&nbsp;
+
+              <%= cert.role || 'No Role' %>
+
+            </div>
+
+            <div class="cert-date">
+
+              📅
+
+              <%= cert.createdAt
+                ? new Date(cert.createdAt).toLocaleDateString(
+                    'en-IN',
+                    {
+                      day: '2-digit',
+                      month: 'short',
+                      year: 'numeric'
+                    }
+                  )
+                : 'No Date'
+              %>
+
+              &nbsp;·&nbsp;
+
+              ⏱ <%= cert.duration || 'N/A' %>
+
+            </div>
+
+          </div>
+
+          <div class="cert-badges">
+
+            <span
+              class="badge badge-<%= (cert.riskLevel || 'low').toLowerCase() %>"
+            >
+              <%= cert.riskLevel || 'Low' %>
+            </span>
+
+            <span class="badge badge-score">
+              Score: <%= cert.riskScore || 0 %>
+            </span>
+
+          </div>
+
+        </div>
+
+        <!-- Reasons -->
+        <% if (cert.reasons && cert.reasons.length > 0) { %>
+
+          <button
+            class="reasons-toggle"
+            onclick='toggleReasons(<%= cert.id %>)'
+          >
+
+            ▼ View
+            <%= cert.reasons.length %>
+
+            risk reason<%= cert.reasons.length > 1 ? 's' : '' %>
+
+          </button>
+
+          <ul
+            class="reasons-list"
+            id="reasons-<%= cert.id %>"
+          >
+
+            <% cert.reasons.forEach(function(r) { %>
+
+              <li>⚠ <%= r %></li>
+
+            <% }) %>
+
+          </ul>
+
+        <% } %>
+
+        <!-- Delete -->
+        <div class="cert-footer">
+
+          <button
+            class="btn-delete"
+            onclick='deleteCert(<%= cert.id %>)'
+          >
+            🗑 Delete
+          </button>
+
+        </div>
+
+      </div>
+
+    <% }) %>
+
+  </div>
+
+  <footer
+    style="
+      background:#1e1b4b;
+      padding:2rem;
+      text-align:center;
+      color:#a78bfa;
+      font-size:0.875rem;
+    "
+  >
+    © 2024 CertiVerify · AI Certificate Analyzer · Built by Team CertiVerify
+  </footer>
+
+  <script>
+
+    // Toggle reasons list
+    function toggleReasons(id) {
+
+      const list =
+        document.getElementById('reasons-' + id);
+
+      if (!list) return;
+
+      const btn = list.previousElementSibling;
+
+      if (list.style.display === 'block') {
+
+        list.style.display = 'none';
+
+        btn.textContent =
+          btn.textContent.replace('▲', '▼');
+
+      } else {
+
+        list.style.display = 'block';
+
+        btn.textContent =
+          btn.textContent.replace('▼', '▲');
+      }
+    }
+
+    // Delete certificate
+    async function deleteCert(id) {
+
+      if (!confirm('Delete this certificate from history?')) {
+        return;
+      }
+
+      try {
+
+        const res = await fetch('/api/certificate/' + id, {
+          method: 'DELETE',
+          credentials: 'include'
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+
+          const card =
+            document.getElementById('card-' + id);
+
+          if (card) {
+
+            card.style.opacity = '0';
+
+            card.style.transition = 'opacity 0.3s';
+
+            setTimeout(() => {
+              card.remove();
+            }, 300);
+          }
+
+        } else {
+
+          alert(
+            'Delete failed: ' +
+            (data.message || 'Unknown error')
+          );
+        }
+
+      } catch (err) {
+
+        alert('Delete failed. Please try again.');
+      }
+    }
+
+  </script>
+
+</body>
+</html>
