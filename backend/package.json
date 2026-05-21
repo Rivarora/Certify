@@ -3,11 +3,10 @@
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
-  "type": "module",
   "scripts": {
     "dev": "nodemon server.js",
     "start": "node server.js",
-    "test": "jest"
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
   },
   "keywords": [],
   "author": "",
@@ -44,5 +43,14 @@
     "socket.io-client": "^4.8.3",
     "streamifier": "^0.1.1",
     "tesseract.js": "^7.0.0"
-  }
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": [
+      "**/tests/**/*.test.js",
+      "**/testing/**/*.test.js"
+    ],
+    "transform": {}
+  },
+  "type": "module"
 }
