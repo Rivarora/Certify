@@ -1,0 +1,58 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #F5F6F8;
+  --card: #FFFFFF;
+  --border: #E5E7EB;
+  --text: #1F2937;
+  --text-muted: #6B7280;
+  --primary: #6D28D9;
+  --primary-hover: #5B21B6;
+  --success: #10B981;
+  --warning: #F59E0B;
+  --danger: #EF4444;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+@layer components {
+  .btn-primary {
+    @apply px-6 py-3 rounded-lg font-semibold text-white transition;
+    background: var(--primary);
+  }
+  .btn-primary:hover { background: var(--primary-hover); }
+  .card {
+    @apply bg-white border rounded-xl p-6 shadow-sm;
+    border-color: var(--border);
+  }
+}
+body {
+  overflow-x: hidden;
+}
+
+.container {
+  width: 90%;
+  margin: auto;
+}
+
+@media (max-width: 768px) {
+  .container {
+    width: 95%;
+  }
+
+  h1 {
+    font-size: 24px;
+  }
+
+  button {
+    width: 100%;
+  }
+}

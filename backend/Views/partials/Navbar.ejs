@@ -1,0 +1,58 @@
+<header style="
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 1000;
+  background: rgba(255,255,255,0.97);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid #f0eeff;
+  height: 68px;
+">
+
+  <div style="
+    max-width:1200px;
+    margin:0 auto;
+    padding:0 2rem;
+    height:100%;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  ">
+
+    <!-- Logo -->
+    <div style="display:flex; align-items:center; gap:0.6rem;">
+      <div style="
+        width:38px; height:38px;
+        border-radius:10px;
+        background:linear-gradient(135deg,#6c63ff,#a855f7);
+        display:flex;
+        align-items:center;
+        justify-content:center;
+      ">
+        ✔
+      </div>
+      <span style="font-weight:800; font-size:1.15rem;">
+        Certi<span style="color:#6c63ff;">Verify</span>
+      </span>
+    </div>
+
+    <!-- Nav -->
+    <nav style="display:flex; gap:2.5rem;">
+      <a href="/" style="color:#6c63ff; font-weight:700;">Home</a>
+      <a href="/upload" style="color:#6c63ff; font-weight:700;">Upload</a>
+      <a href="/history" style="color:#6c63ff; font-weight:700;">History</a>
+      <a href="/result" style="color:#6c63ff; font-weight:700;">Result</a>
+    </nav>
+
+    <!-- Buttons -->
+    <div style="display:flex; gap:0.75rem;">
+      <a href="/api/logout" style="
+  padding:0.55rem 1.4rem;
+  border-radius:8px;
+  color:white;
+  background:linear-gradient(135deg,#6c63ff,#a855f7);
+  text-decoration:none;
+">Logout</a>
+    </div>
+
+  </div>
+</header>

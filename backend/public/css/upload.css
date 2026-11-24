@@ -1,0 +1,109 @@
+body {
+  margin: 0;
+  font-family: "Segoe UI", sans-serif;
+  background: linear-gradient(to right, #eef2ff, #f8fafc);
+}
+
+.upload-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.upload-card {
+  width: 400px;
+  background: white;
+  border-radius: 15px;
+  padding: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header h2 {
+  margin: 0;
+}
+
+.close {
+  cursor: pointer;
+}
+
+.drop-zone {
+  margin-top: 20px;
+  padding: 25px;
+  border: 2px dashed #7c3aed;
+  border-radius: 10px;
+  text-align: center;
+  background: #fafafa;
+}
+
+.drop-zone p {
+  margin: 0;
+}
+
+.drop-zone span {
+  display: block;
+  margin: 10px 0;
+}
+
+.drop-zone button {
+  padding: 8px 16px;
+  border: none;
+  background: #6366f1;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#fileList {
+  margin-top: 15px;
+}
+
+.file-item {
+  background: #f3f4f6;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.progress-bar {
+  height: 6px;
+  background: #ddd;
+  border-radius: 5px;
+  margin-top: 5px;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background: #6366f1;
+  border-radius: 5px;
+}
+
+.actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.cancel {
+  background: #e5e7eb;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.upload {
+  background: #6366f1;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+}

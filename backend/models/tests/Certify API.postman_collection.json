@@ -1,0 +1,601 @@
+{
+  "info": {
+    "_postman_id": "9b6224a9-4aaa-4ecd-9df9-5c7bc3bff1df",
+    "name": "Certify API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "52326135",
+    "_collection_link": "https://go.postman.co/collection/52326135-9b6224a9-4aaa-4ecd-9df9-5c7bc3bff1df?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "http://localhost:5000/status",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:5000/status",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "status"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://localhost:5000/api/upload?file",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "x-api-key",
+            "value": "12345",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "file",
+              "type": "file",
+              "uuid": "e6e675cc-fe0f-458b-bac8-427dbf2bd8d2",
+              "value": null
+            },
+            {
+              "key": "file",
+              "type": "file",
+              "uuid": "e6e675cc-fe0f-458b-bac8-427dbf2bd8d2",
+              "value": null
+            },
+            {
+              "key": "file",
+              "type": "file",
+              "uuid": "e6e675cc-fe0f-458b-bac8-427dbf2bd8d2",
+              "value": null
+            }
+          ]
+        },
+        "url": {
+          "raw": "http://localhost:5000/api/upload?file",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "upload"
+          ],
+          "query": [
+            {
+              "key": "file",
+              "value": null,
+              "type": "text"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://localhost:5000/api/upload?file",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "x-api-key",
+            "value": "12345",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "file",
+              "type": "file",
+              "uuid": "e6e675cc-fe0f-458b-bac8-427dbf2bd8d2",
+              "value": null
+            },
+            {
+              "key": "file",
+              "type": "file",
+              "uuid": "e6e675cc-fe0f-458b-bac8-427dbf2bd8d2",
+              "value": null
+            },
+            {
+              "key": "file",
+              "type": "file",
+              "uuid": "e6e675cc-fe0f-458b-bac8-427dbf2bd8d2",
+              "value": null
+            }
+          ]
+        },
+        "url": {
+          "raw": "http://localhost:5000/api/upload?file",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "upload"
+          ],
+          "query": [
+            {
+              "key": "file",
+              "value": null,
+              "type": "text"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://localhost:5000/api/upload?file",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "x-api-key",
+            "value": "12345",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "file",
+              "type": "file",
+              "uuid": "e6e675cc-fe0f-458b-bac8-427dbf2bd8d2",
+              "value": null
+            },
+            {
+              "key": "file",
+              "type": "file",
+              "uuid": "e6e675cc-fe0f-458b-bac8-427dbf2bd8d2",
+              "value": null
+            },
+            {
+              "key": "file",
+              "type": "file",
+              "uuid": "e6e675cc-fe0f-458b-bac8-427dbf2bd8d2",
+              "value": null
+            }
+          ]
+        },
+        "url": {
+          "raw": "http://localhost:5000/api/upload?file",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "upload"
+          ],
+          "query": [
+            {
+              "key": "file",
+              "value": null,
+              "type": "text"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://localhost:5000/api/certificates?company=Demo Company",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "GET",
+        "header": [
+          {
+            "key": "x-api-key",
+            "value": "12345",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n\"name\":\"Ritika\",\r\n\"company\":\"Google\",\r\n\"role\":\"Backend Intern\",\r\n\"duration\":\"6 months\"\r\n}\r\n",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:5000/api/certificates?company=Demo Company",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "certificates"
+          ],
+          "query": [
+            {
+              "key": "company",
+              "value": "Demo Company"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "/api/certificates?company=Demo Company",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "GET",
+        "header": [
+          {
+            "key": "x-api-key",
+            "value": "12345",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n\"name\":\"Ritika\",\r\n\"company\":\"Google\",\r\n\"role\":\"Backend Intern\",\r\n\"duration\":\"6 months\"\r\n}\r\n",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "/api/certificates?company=Demo Company",
+          "path": [
+            "api",
+            "certificates"
+          ],
+          "query": [
+            {
+              "key": "company",
+              "value": "Demo Company"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://localhost:5000/random",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "GET",
+        "header": [
+          {
+            "key": "x-api-key",
+            "value": "12345",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": []
+        },
+        "url": {
+          "raw": "http://localhost:5000/random",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "random"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://localhost:5000/random",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "GET",
+        "header": [
+          {
+            "key": "x-api-key",
+            "value": "12345",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": []
+        },
+        "url": {
+          "raw": "http://localhost:5000/random",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "random"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://localhost:5000",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "GET",
+        "header": [
+          {
+            "key": "x-api-key",
+            "value": "12345",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": []
+        },
+        "url": {
+          "raw": "http://localhost:5000",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000"
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://localhost:5000/api/domain",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "GET",
+        "header": [
+          {
+            "key": "x-api-key",
+            "value": "12345",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": []
+        },
+        "url": {
+          "raw": "http://localhost:5000/api/domain",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "domain"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://localhost:5000/api/upload",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "x-api-key",
+            "value": "12345",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n\"name\":\"Ritika\",\r\n\"company\":\"Google\",\r\n\"role\":\"Backend Intern\",\r\n\"duration\":\"6 months\"\r\n}\r\n",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:5000/api/upload",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "upload"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://localhost:5000/api/certificate/1",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "GET",
+        "header": [
+          {
+            "key": "x-api-key",
+            "value": "12345",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n\"name\":\"Ritika\",\r\n\"company\":\"Google\",\r\n\"role\":\"Backend Intern\",\r\n\"duration\":\"6 months\"\r\n}\r\n",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:5000/api/certificate/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "certificate",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://localhost:5000/api/certificate",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "x-api-key",
+            "value": "12345",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n\"name\":\"Ritika\",\r\n\"company\":\"Google\",\r\n\"role\":\"Backend Intern\",\r\n\"duration\":\"6 months\"\r\n}\r\n",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:5000/api/certificate",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "certificate"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://localhost:5000/",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:5000/",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            ""
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

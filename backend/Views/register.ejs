@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Register</title>
+  <style>
+    body {
+      margin: 0;
+      position: relative;
+      font-family: sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #f8f7ff 0%, #ede9ff 30%, #fdf4ff 55%, #fff8f0 80%, #fff 100%);
+    }
+
+    .card {
+      background: white;
+      border-radius: 20px;
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 20px 60px rgba(108,99,255,0.12), 0 4px 20px rgba(0,0,0,0.06);
+    }
+
+    h2 { margin-bottom: 1rem; }
+    p { color: #6b7280; margin-bottom: 1.4rem; }
+
+    .field { margin-bottom: 1.2rem; }
+    label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.4rem; }
+
+    input {
+      width: 100%;
+      padding: 0.7rem;
+      border-radius: 10px;
+      border: 1px solid #ddd;
+    }
+
+    button {
+      width: 100%;
+      padding: 0.8rem;
+      background: linear-gradient(135deg, #6c63ff, #a855f7);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .error {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #dc2626;
+      padding: 0.6rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+    }
+
+    .success {
+      background: #ecfdf5;
+      border: 1px solid #a7f3d0;
+      color: #065f46;
+      padding: 0.6rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+    }
+
+    a {
+      color: #6c63ff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="card">
+    <h2>Create Account</h2>
+
+    <% if (error) { %>
+      <div class="error"><%= error %></div>
+    <% } %>
+
+    <% if (success) { %>
+      <div class="success"><%= success %></div>
+    <% } %>
+
+    <form method="POST" action="/api/register-form">
+      <div class="field">
+        <label>Full Name</label>
+        <input type="text" name="name" placeholder="Full Name" required />
+      </div>
+
+      <div class="field">
+        <label>Email</label>
+        <input type="email" name="email" placeholder="Email" required />
+      </div>
+
+      <div class="field">
+        <label>Password</label>
+        <input type="password" name="password" placeholder="Password" required />
+      </div>
+
+      <div class="field">
+        <label>Confirm Password</label>
+        <input type="password" name="confirm" placeholder="Confirm Password" required />
+      </div>
+
+      <button type="submit">Create Account</button>
+    </form>
+
+    <p style="text-align:center; margin-top: 1rem; color:#6b7280; font-size:0.95rem;">
+      Already have an account? <a href="/api/login" style="color:#6c63ff; text-decoration:none; font-weight:700;">Login</a>
+    </p>
+  </div>
+
+</body>
+</html>
