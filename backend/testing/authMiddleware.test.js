@@ -11,173 +11,62 @@ const mockRes = () => {
   return res;
 };
 
-// =============================================
-// SESSION AUTH
-// =============================================
-
-describe("authMiddleware — session auth", () => {
-
-  test("passes when valid session user exists", () => {
-    const req = { session: { user: { id: 1, email: "a@b.com" } }, headers: {} };
+describe("authMiddleware", () => {
+  test("accepts a valid session identity", () => {
+    const req = { session: { user: { id: 1, email: "a@example.test" } }, headers: {} };
     const res = mockRes();
     const next = jest.fn();
-
     authMiddleware(req, res, next);
-
     expect(next).toHaveBeenCalled();
-    expect(req.user).toEqual({ id: 1, email: "a@b.com" });
+    expect(req.user).toEqual({ id: 1, email: "a@example.test" });
   });
 
-  test("does not block when session is present — skips JWT check", () => {
-    const req = { session: { user: { id: 2 } }, headers: {} };
+  test("rejects a session with an invalid user id", () => {
+    const req = { session: { user: { id: "not-an-id" } }, headers: {} };
     const res = mockRes();
-    const next = jest.fn();
-
-    authMiddleware(req, res, next);
-
-    expect(res.status).not.toHaveBeenCalled();
-  });
-});
-
-// =============================================
-// API KEY AUTH
-// =============================================
-
-describe("authMiddleware — API key auth", () => {
-
-  test("passes when correct API key is provided", () => {
-    process.env.API_KEY = "supersecretkey";
-    const req = { session: {}, headers: { "x-api-key": "supersecretkey" } };
-    const res = mockRes();
-    const next = jest.fn();
-
-    authMiddleware(req, res, next);
-
-    expect(next).toHaveBeenCalled();
-  });
-
-  test("does not pass with wrong API key — falls through to JWT", () => {
-    process.env.API_KEY = "supersecretkey";
-    const req = { session: {}, headers: { "x-api-key": "wrongkey" } };
-    const res = mockRes();
-    const next = jest.fn();
-
-    authMiddleware(req, res, next);
-
-    expect(res.status).toHaveBeenCalledWith(401);
-  });
-});
-
-// =============================================
-// JWT AUTH
-// =============================================
-
-describe("authMiddleware — JWT auth", () => {
-
-  // Silence console.error — middleware logs auth failures intentionally
-  let consoleSpy;
-  beforeEach(() => {
-    consoleSpy = jest.spyOn(console, "error").mockImplementation(() => {});
-  });
-  afterEach(() => {
-    consoleSpy.mockRestore();
-  });
-
-  test("passes with valid Bearer token", () => {
-    const token = jwt.sign(
-      { id: 99, email: "test@test.com" },
-      process.env.JWT_SECRET
-    );
-    const req = {
-      session: {},
-      headers: { authorization: `Bearer ${token}` }
-    };
-    const res = mockRes();
-    const next = jest.fn();
-
-    authMiddleware(req, res, next);
-
-    expect(next).toHaveBeenCalled();
-    expect(req.user.id).toBe(99);
-    expect(req.user.email).toBe("test@test.com");
-  });
-
-  test("returns 401 when no Authorization header", () => {
-    const req = { session: {}, headers: {} };
-    const res = mockRes();
-    const next = jest.fn();
-
-    authMiddleware(req, res, next);
-
-    expect(res.status).toHaveBeenCalledWith(401);
-    expect(res.json).toHaveBeenCalledWith(
-      expect.objectContaining({ success: false })
-    );
-    expect(next).not.toHaveBeenCalled();
-  });
-
-  test("returns 401 when Authorization header has no Bearer prefix", () => {
-    const req = {
-      session: {},
-      headers: { authorization: "sometoken123" }
-    };
-    const res = mockRes();
-    const next = jest.fn();
-
-    authMiddleware(req, res, next);
-
+    authMiddleware(req, res, jest.fn());
     expect(res.status).toHaveBeenCalledWith(401);
   });
 
-  test("returns 403 when token is expired", async () => {
-    const token = jwt.sign(
-      { id: 1, email: "a@b.com" },
-      process.env.JWT_SECRET,
-      { expiresIn: "1ms" }
-    );
-
-    await new Promise(r => setTimeout(r, 10));
-
-    const req = {
-      session: {},
-      headers: { authorization: `Bearer ${token}` }
-    };
+  test("rejects missing credentials with a standard 401 body", () => {
     const res = mockRes();
-    const next = jest.fn();
-
-    authMiddleware(req, res, next);
-
-    expect(res.status).toHaveBeenCalledWith(403);
-    expect(next).not.toHaveBeenCalled();
+    authMiddleware({ session: {}, headers: {} }, res, jest.fn());
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.json).toHaveBeenCalledWith({
+      success: false,
+      error: { code: "UNAUTHORIZED", message: "Authentication required" },
+    });
   });
 
-  test("returns 403 when token is tampered with", () => {
-    const token = jwt.sign({ id: 1 }, process.env.JWT_SECRET);
-    const tampered = token.slice(0, -5) + "XXXXX";
-
-    const req = {
-      session: {},
-      headers: { authorization: `Bearer ${tampered}` }
-    };
+  test("rejects an invalid bearer token with 401", () => {
     const res = mockRes();
-    const next = jest.fn();
-
-    authMiddleware(req, res, next);
-
-    expect(res.status).toHaveBeenCalledWith(403);
+    authMiddleware({ session: {}, headers: { authorization: "Bearer bad.token" } }, res, jest.fn());
+    expect(res.status).toHaveBeenCalledWith(401);
   });
 
-  test("returns 403 when token signed with wrong secret", () => {
-    const token = jwt.sign({ id: 1 }, "wrong_secret");
-    const req = {
-      session: {},
-      headers: { authorization: `Bearer ${token}` }
-    };
+  test("rejects an expired bearer token with 401", () => {
+    const token = jwt.sign({ id: 1 }, process.env.JWT_SECRET, { expiresIn: "-1s" });
     const res = mockRes();
+    authMiddleware({ session: {}, headers: { authorization: `Bearer ${token}` } }, res, jest.fn());
+    expect(res.status).toHaveBeenCalledWith(401);
+  });
+
+  test("accepts a valid bearer token and ignores body identity fields", () => {
+    const token = jwt.sign({ id: 42, email: "owner@example.test" }, process.env.JWT_SECRET);
+    const req = { session: {}, headers: { authorization: `Bearer ${token}` }, body: { userId: 99 } };
     const next = jest.fn();
+    authMiddleware(req, mockRes(), next);
+    expect(next).toHaveBeenCalled();
+    expect(req.user.id).toBe(42);
+    expect(req.body.userId).toBe(99);
+  });
 
-    authMiddleware(req, res, next);
-
-    expect(res.status).toHaveBeenCalledWith(403);
+  test("accepts the HttpOnly token cookie", () => {
+    const token = jwt.sign({ id: 42 }, process.env.JWT_SECRET);
+    const req = { session: {}, headers: {}, cookies: { token } };
+    const next = jest.fn();
+    authMiddleware(req, mockRes(), next);
+    expect(next).toHaveBeenCalled();
+    expect(req.user.id).toBe(42);
   });
 });

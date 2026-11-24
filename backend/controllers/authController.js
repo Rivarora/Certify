@@ -112,7 +112,9 @@ export const login = async (req, res, next) => {
     // Store token in cookie
     res.cookie("token", token, {
       httpOnly: true,
-      secure: false,
+      secure: env.nodeEnv === "production",
+      sameSite: "lax",
+      path: "/",
       maxAge: 24 * 60 * 60 * 1000
     });
 

@@ -1,4 +1,5 @@
 import express from "express";
+import authMiddleware from "../middlewares/authMiddleware.js";
 import {
   homeController,
   statusController
@@ -31,11 +32,11 @@ router.get("/result", (req, res) => {
   res.render("result");
 });
 
-router.get("/history", async (req, res) => {
+router.get("/history", authMiddleware, async (req, res) => {
   try {
     const { company, riskLevel, startDate, endDate, search } = req.query;
 
-    const where = {};
+    const where = { userId: req.user.id };
     if (company)   where.company   = { contains: company,   mode: "insensitive" };
     if (riskLevel) where.riskLevel = riskLevel;
     if (startDate || endDate) {
@@ -74,14 +75,14 @@ router.get("/history", async (req, res) => {
     res.render("history", {
       certificates: [],
       filters: {},
-      error: "Failed to load history: " + err.message,
+      error: "Failed to load history. Please try again.",
     });
   }
 });
 
 
 // Random test route
-router.get("/random", (req, res) => {
+router.get("/random", authMiddleware, (req, res) => {
   const randomNumber = Math.floor(Math.random() * 100);
   res.json({
     message: "Random route working",
@@ -96,7 +97,7 @@ router.get("/random", (req, res) => {
 📌 ERROR DEMO
 =====================================
 */
-router.get("/api/error", (req, res, next) => {
+router.get("/api/error", authMiddleware, (req, res, next) => {
   const error = new Error("Test error for middleware demonstration");
   next(error);
 });
@@ -106,40 +107,9 @@ router.get("/api/error", (req, res, next) => {
 📌 SSR: VIEW RESULT (DB BASED)
 =====================================
 */
-router.get("/view-result", async (req, res, next) => {
-  const { id } = req.query;
-
-  const renderTime = new Date().toLocaleString("en-IN", {
-    timeZone: "Asia/Kolkata",
-    hour12: true,
-  });
-
-  try {
-    let certificate = null;
-
-    if (id) {
-      try {
-        const { default: Certificate } = await import("../models/Certificate.js");
-        certificate = await Certificate.findById(id).lean();
-      } catch {
-        certificate = {
-          id,
-          issuedTo: "Demo User",
-          course: "Full Stack Development",
-          issuedBy: "Certify Platform",
-          issueDate: new Date("2024-01-15"),
-          expiryDate: new Date("2026-01-15"),
-          status: "valid",
-          description: "Completed with distinction.",
-        };
-      }
-    }
-
-    res.render("view-result", { certificate, renderTime });
-
-  } catch (err) {
-    next(err);
-  }
+// This legacy page presented a hard-coded demo result as if it were verified.
+router.get("/view-result", (req, res) => {
+  res.status(410).json({ success: false, error: { code: "ENDPOINT_RETIRED", message: "This legacy verification page is no longer available" } });
 });
 
 export default router;

@@ -1,44 +1,48 @@
 import jwt from "jsonwebtoken";
 import { env } from "../config/env.js";
 
+const unauthorized = (res, message = "Authentication required") => res.status(401).json({
+  success: false,
+  error: { code: "UNAUTHORIZED", message },
+});
+
+export const normalizeUser = (identity) => {
+  const id = Number(identity?.id ?? identity?.sub);
+  if (!Number.isSafeInteger(id) || id <= 0) return null;
+  return { id, email: typeof identity.email === "string" ? identity.email : undefined };
+};
+
+export const verifyAccessToken = (token) => {
+  const decoded = jwt.verify(token, env.jwtSecret, { algorithms: ["HS256"] });
+  const user = normalizeUser(decoded);
+  if (!user) throw new jwt.JsonWebTokenError("Invalid token subject");
+  return user;
+};
+
 const authMiddleware = (req, res, next) => {
+  const sessionUser = normalizeUser(req.session?.user);
+  if (sessionUser) {
+    req.user = sessionUser;
+    return next();
+  }
+
+  const authorization = req.get?.("authorization") ?? req.headers?.authorization;
+  let token;
+  if (authorization) {
+    const match = /^Bearer\s+([^\s]+)$/i.exec(authorization);
+    if (!match) return unauthorized(res, "Invalid authentication credentials");
+    token = match[1];
+  } else {
+    token = req.cookies?.token;
+  }
+
+  if (!token) return unauthorized(res);
+
   try {
-    // ✅ 1. SESSION CHECK (EJS LOGIN)
-    if (req.session && req.session.user) {
-      req.user = req.session.user;
-      return next();
-    }
-
-    // ✅ 2. API KEY SUPPORT
-    const apiKey = req.headers["x-api-key"];
-    if (apiKey && env.apiKey && apiKey === env.apiKey) {
-      return next();
-    }
-
-    // ✅ 3. JWT CHECK (API)
-    const authHeader = req.headers["authorization"];
-
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res.status(401).json({
-        success: false,
-        message: "Please login first"
-      });
-    }
-
-    const token = authHeader.split(" ")[1];
-
-    const decoded = jwt.verify(token, env.jwtSecret);
-
-    req.user = decoded;
-    next();
-
-  } catch (err) {
-    console.error("Auth error:", err.message);
-
-    return res.status(403).json({
-      success: false,
-      message: "Authentication failed"
-    });
+    req.user = verifyAccessToken(token);
+    return next();
+  } catch {
+    return unauthorized(res, "Invalid or expired authentication credentials");
   }
 };
 

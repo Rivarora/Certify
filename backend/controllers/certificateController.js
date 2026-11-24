@@ -3,6 +3,15 @@
 // let idCounter = 1;
 import prisma from "../config/db.js";
 
+export const findOwnedCertificate = (database, id, userId) =>
+  database.certificate.findFirst({ where: { id, userId } });
+
+export const deleteOwnedCertificate = (database, id, userId) =>
+  database.certificate.deleteMany({ where: { id, userId } });
+
+export const createCertificateForUser = (database, userId, data) =>
+  database.certificate.create({ data: { ...data, userId } });
+
 
 /*
 =====================================================
@@ -25,10 +34,8 @@ export const createCertificate = async (req, res, next) => {
       extractedContent,
     } = req.body;
  
-    // userId from JWT (may be null if guest)
-    const userId = req.user?.id ? parseInt(req.user.id) : null;
-    const newCert = await prisma.certificate.create({
-      data: {
+    const userId = req.user.id;
+    const newCert = await createCertificateForUser(prisma, userId, {
         name,
         email,
         company,
@@ -38,8 +45,6 @@ export const createCertificate = async (req, res, next) => {
         riskLevel: riskLevel || "Low",
         reasons: reasons || [],
         extractedContent: extractedContent || null,
-        ...(userId && { userId }),
-      },
     });
     // certificates.push(newCert);
 
@@ -62,16 +67,17 @@ export const createCertificate = async (req, res, next) => {
 */
 export const getCertificateById = async (req, res, next) => {
   try {
-    const id = parseInt(req.params.id);
+    const id = Number(req.params.id);
+    if (!Number.isSafeInteger(id) || id <= 0) {
+      return res.status(404).json({ success: false, error: { code: "NOT_FOUND", message: "Certificate not found" } });
+    }
  
-    const cert = await prisma.certificate.findUnique({
-      where: { id },
-    });
+    const cert = await findOwnedCertificate(prisma, id, req.user.id);
  
     if (!cert) {
       return res.status(404).json({
         success: false,
-        message: "Certificate not found",
+        error: { code: "NOT_FOUND", message: "Certificate not found" },
       });
     }
  
@@ -93,11 +99,11 @@ export const getCertificateById = async (req, res, next) => {
 export const getAllCertificates = async (req, res, next) => {
   try {
     const { company, riskLevel, startDate, endDate, search } = req.query;
-    const page = parseInt(req.query.page) || 1;
-const limit = parseInt(req.query.limit) || 10;
-const skip = (page - 1) * limit;
+    const page = Math.max(1, Number.parseInt(req.query.page, 10) || 1);
+    const limit = Math.min(100, Math.max(1, Number.parseInt(req.query.limit, 10) || 10));
+    const skip = (page - 1) * limit;
     // Build dynamic WHERE clause
-    const where = {};
+    const where = { userId: req.user.id };
  
     if (company) {
       where.company = { contains: company, mode: "insensitive" };
@@ -197,17 +203,18 @@ export const getCertificatesByCompany = async (req, res, next) => {
 // */
 export const deleteCertificate = async (req, res, next) => {
   try {
-    const id = parseInt(req.params.id);
- 
-    const existing = await prisma.certificate.findUnique({ where: { id } });
-    if (!existing) {
-      return res.status(404).json({
-        success: false,
-        message: "Certificate not found",
-      });
+    const id = Number(req.params.id);
+    if (!Number.isSafeInteger(id) || id <= 0) {
+      return res.status(404).json({ success: false, error: { code: "NOT_FOUND", message: "Certificate not found" } });
     }
  
-    await prisma.certificate.delete({ where: { id } });
+    const deleted = await deleteOwnedCertificate(prisma, id, req.user.id);
+    if (deleted.count === 0) {
+      return res.status(404).json({
+        success: false,
+        error: { code: "NOT_FOUND", message: "Certificate not found" },
+      });
+    }
  
     res.status(200).json({
       success: true,
