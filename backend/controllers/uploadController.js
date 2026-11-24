@@ -930,6 +930,20 @@ export const uploadController = async (
     const socketId =
       req.query.socketId;
 
+    if (socketId) {
+      const socket = io?.sockets.sockets.get(socketId);
+      if (!socket) {
+        return res.status(403).json({ success: false, error: { code: "FORBIDDEN", message: "Processing connection is not authorized" } });
+      }
+      if (String(socket.data.user?.id) !== String(req.user.id)) {
+        return res.status(403).json({ success: false, error: { code: "FORBIDDEN", message: "Processing connection is not authorized" } });
+      }
+    }
+
+    const emitProgress = (progress) => {
+      if (io && socketId) io.to(socketId).emit("uploadProgress", progress);
+    };
+
     /*
     =============================================================
     FILE VALIDATION
@@ -957,20 +971,7 @@ export const uploadController = async (
     =============================================================
     */
 
-    if (io && socketId) {
-
-      io.to(socketId).emit(
-
-        "uploadProgress",
-
-        {
-          percent: 10,
-
-          message:
-            "Uploading file..."
-        }
-      );
-    }
+    emitProgress({ percent: 10, message: "Uploading file..." });
 
     await delay(500);
 
@@ -989,8 +990,10 @@ export const uploadController = async (
             cloudinary.uploader.upload_stream(
 
               {
-                folder:
-                  "certificates",
+                folder: "certificates",
+
+                type: "authenticated",
+                access_mode: "authenticated",
 
                 resource_type:
                   "auto"
@@ -1024,20 +1027,7 @@ export const uploadController = async (
     =============================================================
     */
 
-    if (io && socketId) {
-
-      io.to(socketId).emit(
-
-        "uploadProgress",
-
-        {
-          percent: 40,
-
-          message:
-            "Extracting content..."
-        }
-      );
-    }
+    emitProgress({ percent: 40, message: "Extracting content..." });
 
     await delay(500);
 
@@ -1121,20 +1111,7 @@ export const uploadController = async (
 
     ) {
 
-      if (io && socketId) {
-
-        io.to(socketId).emit(
-
-          "uploadProgress",
-
-          {
-            percent: 55,
-
-            message:
-              "Running OCR..."
-          }
-        );
-      }
+      emitProgress({ percent: 55, message: "Running OCR..." });
 
       const result =
         await Tesseract.recognize(
@@ -1160,11 +1137,6 @@ export const uploadController = async (
         Math.round(
           result.data.confidence
         );
-
-      console.log(
-        "OCR Confidence:",
-        ocrConfidence
-      );
 
       const cleanedText =
         fileContent
@@ -1195,20 +1167,7 @@ export const uploadController = async (
     =============================================================
     */
 
-    if (io && socketId) {
-
-      io.to(socketId).emit(
-
-        "uploadProgress",
-
-        {
-          percent: 75,
-
-          message:
-            "Analyzing certificate..."
-        }
-      );
-    }
+    emitProgress({ percent: 75, message: "Analyzing certificate..." });
 
     await delay(500);
 
@@ -1455,26 +1414,6 @@ export const uploadController = async (
       }
     }
 
-    console.log(
-      "DETECTED NAME:",
-      detectedName
-    );
-
-    console.log(
-      "DETECTED COMPANY:",
-      detectedCompany
-    );
-
-    console.log(
-      "DETECTED ROLE:",
-      detectedRole
-    );
-
-    console.log(
-      "DETECTED DURATION:",
-      detectedDuration
-    );
-
     /*
     =============================================================
     SAVE TO DATABASE
@@ -1486,8 +1425,7 @@ export const uploadController = async (
 
         data: {
 
-          userId:
-            req.user?.id || null,
+          userId: req.user.id,
 
           name:
             req.body.name ||
@@ -1523,31 +1461,13 @@ export const uploadController = async (
         }
       });
 
-    console.log(
-      "Certificate Saved:",
-      savedCertificate.id
-    );
-
     /*
     =============================================================
     COMPLETE
     =============================================================
     */
 
-    if (io && socketId) {
-
-      io.to(socketId).emit(
-
-        "uploadProgress",
-
-        {
-          percent: 100,
-
-          message:
-            "Completed ✅"
-        }
-      );
-    }
+    emitProgress({ percent: 100, message: "Completed" });
 
     /*
     =============================================================
@@ -1568,12 +1488,6 @@ export const uploadController = async (
       ocrConfidence,
 
       ocrConfidence: ocrConfidence,
-
-      cloudinaryUrl:
-        cloudinaryResult.secure_url,
-
-      publicId:
-        cloudinaryResult.public_id,
 
       originalName:
         req.file.originalname,
@@ -1602,12 +1516,6 @@ export const uploadController = async (
   }
 
   catch (err) {
-
-    console.log(
-      "UPLOAD ERROR:"
-    );
-
-    console.log(err);
 
     next(err);
   }

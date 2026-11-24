@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import prisma from "../config/db.js";
+import { env } from "../config/env.js";
 
 // =====================================
 // 📌 REGISTER CONTROLLER
@@ -102,7 +103,7 @@ export const login = async (req, res, next) => {
         id: user.id,
         email: user.email
       },
-      process.env.JWT_SECRET,
+      env.jwtSecret,
       {
         expiresIn: "1d"
       }
@@ -111,7 +112,9 @@ export const login = async (req, res, next) => {
     // Store token in cookie
     res.cookie("token", token, {
       httpOnly: true,
-      secure: false,
+      secure: env.nodeEnv === "production",
+      sameSite: "lax",
+      path: "/",
       maxAge: 24 * 60 * 60 * 1000
     });
 

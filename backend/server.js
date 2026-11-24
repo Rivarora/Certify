@@ -14,8 +14,7 @@ ENV
 =====================================
 */
 
-import dotenv from "dotenv";
-dotenv.config();
+import { env, validateServerEnv } from "./config/env.js";
 
 /*
 =====================================
@@ -33,7 +32,7 @@ DB
 =====================================
 */
 
-import { connectDB } from "./config/db.js";
+import { checkDatabaseReady, connectDB, disconnectDB } from "./config/db.js";
 
 /*
 =====================================
@@ -56,6 +55,9 @@ MIDDLEWARES
 
 import loggerMiddleware from "./middlewares/loggerMiddleware.js";
 import errorMiddleware from "./middlewares/errorMiddleware.js";
+import authMiddleware from "./middlewares/authMiddleware.js";
+import { createSocketAuthMiddleware } from "./middlewares/socketAuthMiddleware.js";
+import { securityHeaders } from "./middlewares/securityMiddleware.js";
 
 /*
 =====================================
@@ -63,18 +65,9 @@ CONNECT DATABASE
 =====================================
 */
 
-try {
-
-  await connectDB();
-
-  console.log("✅ MongoDB connected");
-
-}
-
-catch (error) {
-
-  console.log("⚠️ MongoDB not connected");
-}
+validateServerEnv();
+await connectDB();
+console.log("PostgreSQL connected");
 
 /*
 =====================================
@@ -83,12 +76,15 @@ CREATE APP
 */
 
 const app = express();
+app.disable("x-powered-by");
+app.set("trust proxy", env.nodeEnv === "production" ? 1 : false);
+app.use(securityHeaders);
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: env.frontendOrigins,
   credentials: true
 }));
 
-const PORT = process.env.PORT || 5000;
+const PORT = env.port;
 
 /*
 =====================================
@@ -122,15 +118,12 @@ COOKIE + SESSION
 =====================================
 */
 
-app.use(cookieParser());
+const parseCookies = cookieParser();
+app.use(parseCookies);
 
-app.use(
+const sessionMiddleware = session({
 
-  session({
-
-    secret:
-      process.env.SESSION_SECRET ||
-      "certify_default_secret",
+    secret: env.sessionSecret,
 
     resave: false,
 
@@ -139,11 +132,12 @@ app.use(
     cookie: {
 
       httpOnly: true,
-
+      secure: env.nodeEnv === "production",
+      sameSite: "lax",
       maxAge: 1000 * 60 * 60 * 24
     }
-  })
-);
+  });
+app.use(sessionMiddleware);
 
 /*
 =====================================
@@ -172,10 +166,12 @@ app.use("/api", certificateRoutes);
 
 app.use("/api", uploadRoutes);
 
-app.use("/api", domainRoutes);
+app.use("/api", authMiddleware, domainRoutes);
 
 // Demo
-app.use("/api/demo", demoRoutes);
+if (env.nodeEnv === "development" || env.nodeEnv === "test") {
+  app.use("/api/demo", authMiddleware, demoRoutes);
+}
 
 /*
 =====================================
@@ -183,7 +179,7 @@ SESSION DEMO
 =====================================
 */
 
-app.get("/session-demo", (req, res) => {
+app.get("/session-demo", authMiddleware, (req, res) => {
 
   req.session.visits =
     (req.session.visits || 0) + 1;
@@ -203,12 +199,27 @@ app.get("/session-demo", (req, res) => {
   });
 });
 
+// Liveness does not depend on downstream services; readiness includes the database.
+const healthHandler = (req, res) => res.status(200).json({ status: "ok" });
+const readyHandler = async (req, res) => {
+  try {
+    await checkDatabaseReady();
+    res.status(200).json({ status: "ready", checks: { database: "ok" } });
+  } catch {
+    res.status(503).json({ status: "not_ready", checks: { database: "unavailable" } });
+  }
+};
+app.get("/api/health", healthHandler);
+app.get("/api/ready", readyHandler);
+// Keep the initial health paths available for existing local integrations.
+app.get("/health/live", healthHandler);
+app.get("/health/ready", readyHandler);
+
 /*
 =====================================
 ERROR HANDLER
 =====================================
 */
-
 app.use(errorMiddleware);
 
 /*
@@ -223,24 +234,18 @@ const io = new Server(server, {
 
   cors: {
 
-    origin: "*"
+    origin: env.frontendOrigins,
+    credentials: true
   }
 });
 
+io.engine.use(parseCookies);
+io.engine.use(sessionMiddleware);
+io.use(createSocketAuthMiddleware());
+
 app.set("io", io);
 
-io.on("connection", (socket) => {
-
-  console.log("🔌 Client connected:", socket.id);
-
-  socket.on("disconnect", () => {
-
-    console.log(
-      "❌ Client disconnected:",
-      socket.id
-    );
-  });
-});
+io.on("connection", () => {});
 
 /*
 =====================================
@@ -248,9 +253,30 @@ START SERVER
 =====================================
 */
 
-server.listen(PORT, () => {
-
-  console.log(
-    `🚀 Server running at http://localhost:${PORT}`
-  );
+const listener = server.listen(PORT, () => {
+  console.log(`Server listening on port ${PORT}`);
 });
+
+let shuttingDown = false;
+const shutdown = (signal) => {
+  if (shuttingDown) return;
+  shuttingDown = true;
+  console.log(`Received ${signal}; shutting down`);
+  const forceExit = setTimeout(() => process.exit(1), 10_000);
+  forceExit.unref();
+  io.close(async () => {
+    try {
+      await disconnectDB();
+      clearTimeout(forceExit);
+      process.exit(0);
+    } catch (error) {
+      console.error("Shutdown cleanup failed");
+      process.exit(1);
+    }
+  });
+};
+
+process.on("SIGINT", () => shutdown("SIGINT"));
+process.on("SIGTERM", () => shutdown("SIGTERM"));
+
+export { app, server, listener };

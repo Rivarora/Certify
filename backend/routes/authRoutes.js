@@ -2,6 +2,7 @@ import express from "express";
 import bcrypt from "bcrypt";
 // import User from "../models/userModel.js";
 import prisma from "../config/db.js";
+import { authRateLimiter } from "../middlewares/securityMiddleware.js";
 
 import { register, login } from "../controllers/authController.js";
 
@@ -12,8 +13,8 @@ const router = express.Router();
 API ROUTES (DO NOT TOUCH)
 ===========================
 */
-router.post("/register", register);
-router.post("/login", login);
+router.post("/register", authRateLimiter, register);
+router.post("/login", authRateLimiter, login);
 
 /*
 ===========================
@@ -43,6 +44,7 @@ router.get("/register", (req, res) => {
 router.get("/logout", (req, res) => {
   req.session.destroy((err) => {
     res.clearCookie("connect.sid");
+    res.clearCookie("token", { path: "/" });
     res.redirect("/api/login");
   });
 });
@@ -52,7 +54,7 @@ router.get("/logout", (req, res) => {
 EJS REGISTER HANDLER
 ===========================
 */
-router.post("/register-form", async (req, res) => {
+router.post("/register-form", authRateLimiter, async (req, res) => {
   try {
     const { name, email, password, confirm } = req.body;
 
@@ -90,7 +92,6 @@ router.post("/register-form", async (req, res) => {
     return res.redirect("/");
 
   } catch (err) {
-     console.log(err);
     return res.render("register", {
       error: "Registration failed",
       success: null
@@ -103,7 +104,7 @@ router.post("/register-form", async (req, res) => {
 EJS LOGIN HANDLER
 ===========================
 */
-router.post("/login-form", async (req, res) => {
+router.post("/login-form", authRateLimiter, async (req, res) => {
   try {
     const email = req.body.email.trim();
     const password = req.body.password;

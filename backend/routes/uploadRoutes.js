@@ -2,7 +2,10 @@ import express from "express";
 import multer from "multer";
 
 import authMiddleware from "../middlewares/authMiddleware.js";
+import { uploadRateLimiter } from "../middlewares/securityMiddleware.js";
+import { validateUploadedFile } from "../utils/fileValidation.js";
 import { uploadController } from "../controllers/uploadController.js";
+import { env } from "../config/env.js";
 
 const router = express.Router();
 
@@ -52,7 +55,8 @@ const upload = multer({
   storage,
   fileFilter,
   limits: {
-    fileSize: 20 * 1024 * 1024
+    fileSize: env.uploadMaxBytes,
+    files: 1,
   }
 });
 
@@ -64,8 +68,10 @@ ROUTE
 
 router.post(
   "/upload",
-  // authMiddleware,
+  uploadRateLimiter,
+  authMiddleware,
   upload.single("file"),
+  validateUploadedFile,
   uploadController
 );
 
