@@ -3,7 +3,7 @@ import axios from "axios";
 import { io } from "socket.io-client";
 import { API_BASE_URL, SOCKET_BASE_URL } from "../services/config";
 
-const socket = io(SOCKET_BASE_URL);
+const socket = io(SOCKET_BASE_URL, { withCredentials: true });
 
 export default function Upload() {
 
@@ -110,10 +110,14 @@ export default function Upload() {
 
       formData.append("file", file);
 
-      const response = await axios.post(
-  `${API_BASE_URL}/api/upload?socketId=${encodeURIComponent(socket.id)}`,
+  const socketQuery = socket.connected && socket.id
+    ? `?socketId=${encodeURIComponent(socket.id)}`
+    : "";
+  const response = await axios.post(
+  `${API_BASE_URL}/api/upload${socketQuery}`,
   formData,
   {
+    withCredentials: true,
     headers: {
       "Content-Type": "multipart/form-data"
     }
@@ -146,12 +150,12 @@ export default function Upload() {
 
       console.log(error);
 
-      alert(
-
-        error?.response?.data?.message ||
-
-        "Upload failed"
-      );
+      const status = error?.response?.status;
+      const message = status === 401
+        ? "Please sign in before uploading a certificate."
+        : error?.response?.data?.error?.message || error?.response?.data?.message || "Upload failed";
+      setMessage(message);
+      alert(message);
     }
   };
 

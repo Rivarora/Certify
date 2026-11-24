@@ -55,6 +55,9 @@ MIDDLEWARES
 
 import loggerMiddleware from "./middlewares/loggerMiddleware.js";
 import errorMiddleware from "./middlewares/errorMiddleware.js";
+import authMiddleware from "./middlewares/authMiddleware.js";
+import { createSocketAuthMiddleware } from "./middlewares/socketAuthMiddleware.js";
+import { securityHeaders } from "./middlewares/securityMiddleware.js";
 
 /*
 =====================================
@@ -73,8 +76,11 @@ CREATE APP
 */
 
 const app = express();
+app.disable("x-powered-by");
+app.set("trust proxy", env.nodeEnv === "production" ? 1 : false);
+app.use(securityHeaders);
 app.use(cors({
-  origin: env.frontendOrigin,
+  origin: env.frontendOrigins,
   credentials: true
 }));
 
@@ -112,11 +118,10 @@ COOKIE + SESSION
 =====================================
 */
 
-app.use(cookieParser());
+const parseCookies = cookieParser();
+app.use(parseCookies);
 
-app.use(
-
-  session({
+const sessionMiddleware = session({
 
     secret: env.sessionSecret,
 
@@ -127,11 +132,12 @@ app.use(
     cookie: {
 
       httpOnly: true,
-
+      secure: env.nodeEnv === "production",
+      sameSite: "lax",
       maxAge: 1000 * 60 * 60 * 24
     }
-  })
-);
+  });
+app.use(sessionMiddleware);
 
 /*
 =====================================
@@ -160,10 +166,12 @@ app.use("/api", certificateRoutes);
 
 app.use("/api", uploadRoutes);
 
-app.use("/api", domainRoutes);
+app.use("/api", authMiddleware, domainRoutes);
 
 // Demo
-app.use("/api/demo", demoRoutes);
+if (env.nodeEnv === "development" || env.nodeEnv === "test") {
+  app.use("/api/demo", authMiddleware, demoRoutes);
+}
 
 /*
 =====================================
@@ -171,7 +179,7 @@ SESSION DEMO
 =====================================
 */
 
-app.get("/session-demo", (req, res) => {
+app.get("/session-demo", authMiddleware, (req, res) => {
 
   req.session.visits =
     (req.session.visits || 0) + 1;
@@ -226,24 +234,18 @@ const io = new Server(server, {
 
   cors: {
 
-    origin: "*"
+    origin: env.frontendOrigins,
+    credentials: true
   }
 });
 
+io.engine.use(parseCookies);
+io.engine.use(sessionMiddleware);
+io.use(createSocketAuthMiddleware());
+
 app.set("io", io);
 
-io.on("connection", (socket) => {
-
-  console.log("🔌 Client connected:", socket.id);
-
-  socket.on("disconnect", () => {
-
-    console.log(
-      "❌ Client disconnected:",
-      socket.id
-    );
-  });
-});
+io.on("connection", () => {});
 
 /*
 =====================================
