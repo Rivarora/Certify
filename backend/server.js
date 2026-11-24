@@ -14,8 +14,7 @@ ENV
 =====================================
 */
 
-import dotenv from "dotenv";
-dotenv.config();
+import { env, validateServerEnv } from "./config/env.js";
 
 /*
 =====================================
@@ -33,7 +32,7 @@ DB
 =====================================
 */
 
-import { connectDB } from "./config/db.js";
+import { checkDatabaseReady, connectDB, disconnectDB } from "./config/db.js";
 
 /*
 =====================================
@@ -63,18 +62,9 @@ CONNECT DATABASE
 =====================================
 */
 
-try {
-
-  await connectDB();
-
-  console.log("✅ MongoDB connected");
-
-}
-
-catch (error) {
-
-  console.log("⚠️ MongoDB not connected");
-}
+validateServerEnv();
+await connectDB();
+console.log("PostgreSQL connected");
 
 /*
 =====================================
@@ -84,11 +74,11 @@ CREATE APP
 
 const app = express();
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: env.frontendOrigin,
   credentials: true
 }));
 
-const PORT = process.env.PORT || 5000;
+const PORT = env.port;
 
 /*
 =====================================
@@ -128,9 +118,7 @@ app.use(
 
   session({
 
-    secret:
-      process.env.SESSION_SECRET ||
-      "certify_default_secret",
+    secret: env.sessionSecret,
 
     resave: false,
 
@@ -203,12 +191,27 @@ app.get("/session-demo", (req, res) => {
   });
 });
 
+// Liveness does not depend on downstream services; readiness includes the database.
+const healthHandler = (req, res) => res.status(200).json({ status: "ok" });
+const readyHandler = async (req, res) => {
+  try {
+    await checkDatabaseReady();
+    res.status(200).json({ status: "ready", checks: { database: "ok" } });
+  } catch {
+    res.status(503).json({ status: "not_ready", checks: { database: "unavailable" } });
+  }
+};
+app.get("/api/health", healthHandler);
+app.get("/api/ready", readyHandler);
+// Keep the initial health paths available for existing local integrations.
+app.get("/health/live", healthHandler);
+app.get("/health/ready", readyHandler);
+
 /*
 =====================================
 ERROR HANDLER
 =====================================
 */
-
 app.use(errorMiddleware);
 
 /*
@@ -248,9 +251,30 @@ START SERVER
 =====================================
 */
 
-server.listen(PORT, () => {
-
-  console.log(
-    `🚀 Server running at http://localhost:${PORT}`
-  );
+const listener = server.listen(PORT, () => {
+  console.log(`Server listening on port ${PORT}`);
 });
+
+let shuttingDown = false;
+const shutdown = (signal) => {
+  if (shuttingDown) return;
+  shuttingDown = true;
+  console.log(`Received ${signal}; shutting down`);
+  const forceExit = setTimeout(() => process.exit(1), 10_000);
+  forceExit.unref();
+  io.close(async () => {
+    try {
+      await disconnectDB();
+      clearTimeout(forceExit);
+      process.exit(0);
+    } catch (error) {
+      console.error("Shutdown cleanup failed");
+      process.exit(1);
+    }
+  });
+};
+
+process.on("SIGINT", () => shutdown("SIGINT"));
+process.on("SIGTERM", () => shutdown("SIGTERM"));
+
+export { app, server, listener };

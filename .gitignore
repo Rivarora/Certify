@@ -5,6 +5,7 @@ node_modules/
 .env
 .env.*
 !.env.example
+!.env.*.example
 
 # Build files
 dist/
@@ -14,9 +15,17 @@ coverage/
 # Logs
 logs/
 *.log
+backend/logs/
 
-# Uploaded documents
+# Private files and generated storage
 uploads/
+backend/uploads/
+storage/
+reports/
+*.pem
+*.key
+*.p12
+*.pfx
 
 # Temporary files
 temp/

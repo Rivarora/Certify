@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import { env } from "../config/env.js";
 
 const authMiddleware = (req, res, next) => {
   try {
@@ -10,7 +11,7 @@ const authMiddleware = (req, res, next) => {
 
     // ✅ 2. API KEY SUPPORT
     const apiKey = req.headers["x-api-key"];
-    if (apiKey && apiKey === process.env.API_KEY) {
+    if (apiKey && env.apiKey && apiKey === env.apiKey) {
       return next();
     }
 
@@ -26,7 +27,7 @@ const authMiddleware = (req, res, next) => {
 
     const token = authHeader.split(" ")[1];
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, env.jwtSecret);
 
     req.user = decoded;
     next();

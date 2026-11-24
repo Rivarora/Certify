@@ -1,10 +1,12 @@
-import "dotenv/config";
 import { defineConfig, env } from "prisma/config";
 import pg from "pg";
 import { PrismaPg } from "@prisma/adapter-pg";
+import { env as appEnv, validateDatabaseEnv } from "./config/env.js";
+
+validateDatabaseEnv();
 
 const pool = new pg.Pool({
-  connectionString: process.env.DATABASE_URL,
+  connectionString: appEnv.databaseUrl,
 });
 
 export default defineConfig({
@@ -13,7 +15,7 @@ export default defineConfig({
     path: "prisma/migrations",
   },
   datasource: {
-    url: env("DATABASE_URL"),   // ← required for CLI (db push, migrate, etc.)
+    url: env("DATABASE_URL"),
   },
   adapter: () => new PrismaPg(pool),
 });
