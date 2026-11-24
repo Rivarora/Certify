@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 export const calculateRisk = (content) => {
 
   if (!content || typeof content !== "string") {
@@ -293,3 +295,68 @@ export const calculateRisk = (content) => {
     details
   };
 };
+
+export default function Result() {
+  let result = null;
+
+  try {
+    result = JSON.parse(localStorage.getItem("certificateResult") || "null");
+  } catch {
+    result = null;
+  }
+
+  if (!result) {
+    return (
+      <section style={{ maxWidth: 760, margin: "0 auto", padding: "48px 24px" }}>
+        <h1>No certificate result yet</h1>
+        <p>Upload a certificate to view its extracted details and risk analysis.</p>
+        <Link to="/upload">Upload certificate</Link>
+      </section>
+    );
+  }
+
+  const fields = result.detectedFields || {};
+  const reasons = result.reasons || result.flaggedIssues || [];
+
+  return (
+    <main style={{ maxWidth: 900, margin: "0 auto", padding: "40px 24px" }}>
+      <Link to="/upload">← Upload another certificate</Link>
+      <h1 style={{ marginBottom: 8 }}>Certificate analysis</h1>
+      <p style={{ color: "#6b7280", marginTop: 0 }}>
+        Results are based on extracted document content and heuristic checks.
+      </p>
+
+      <section style={{ border: "1px solid #e5e7eb", borderRadius: 16, padding: 24, marginTop: 24 }}>
+        <h2 style={{ marginTop: 0 }}>Risk: {result.riskLevel || "Unavailable"}</h2>
+        <p>Risk score: {Number.isFinite(result.riskScore) ? `${result.riskScore}/100` : "Unavailable"}</p>
+        {result.ocrConfidence != null && <p>OCR confidence: {result.ocrConfidence}%</p>}
+        {result.originalName && <p>File: {result.originalName}</p>}
+        {result.certificateId != null && <p>Record ID: {result.certificateId}</p>}
+      </section>
+
+      <section style={{ border: "1px solid #e5e7eb", borderRadius: 16, padding: 24, marginTop: 16 }}>
+        <h2 style={{ marginTop: 0 }}>Extracted details</h2>
+        <dl>
+          <dt>Name</dt><dd>{fields.name || "Not detected"}</dd>
+          <dt>Issuer</dt><dd>{fields.company || "Not detected"}</dd>
+          <dt>Role</dt><dd>{fields.role || "Not detected"}</dd>
+          <dt>Date or duration</dt><dd>{fields.duration || "Not detected"}</dd>
+        </dl>
+      </section>
+
+      <section style={{ border: "1px solid #e5e7eb", borderRadius: 16, padding: 24, marginTop: 16 }}>
+        <h2 style={{ marginTop: 0 }}>Analysis reasons</h2>
+        {reasons.length ? (
+          <ul>{reasons.map((reason, index) => <li key={`${index}-${reason}`}>{reason}</li>)}</ul>
+        ) : <p>No analysis reasons were returned.</p>}
+      </section>
+
+      {result.extractedContent && (
+        <details style={{ marginTop: 16 }}>
+          <summary>View extracted text</summary>
+          <pre style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>{result.extractedContent}</pre>
+        </details>
+      )}
+    </main>
+  );
+}
