@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { io } from "socket.io-client";
+import { API_BASE_URL, SOCKET_BASE_URL } from "../services/config";
 
-const socket = io("http://localhost:5000");
+const socket = io(SOCKET_BASE_URL);
 
 export default function Upload() {
 
@@ -110,7 +111,7 @@ export default function Upload() {
       formData.append("file", file);
 
       const response = await axios.post(
-  `http://localhost:5000/api/upload?socketId=${socket.id}`,
+  `${API_BASE_URL}/api/upload?socketId=${encodeURIComponent(socket.id)}`,
   formData,
   {
     headers: {
